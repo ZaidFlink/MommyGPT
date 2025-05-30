@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { generateMommyResponse } from '@/lib/openai';
 import ReactMarkdown from 'react-markdown';
 
@@ -30,7 +30,7 @@ export default function Home() {
 
   // Get current chat
   const currentChat = chats.find(chat => chat.id === currentChatId);
-  const messages = currentChat?.messages || [];
+  const messages = useMemo(() => currentChat?.messages || [], [currentChat?.messages]);
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -50,15 +50,6 @@ export default function Home() {
     };
     setChats(prev => [newChat, ...prev]);
     setCurrentChatId(newChat.id);
-  };
-
-  // Update chat title based on first message
-  const updateChatTitle = (chatId: string, firstMessage: string) => {
-    setChats(prev => prev.map(chat => 
-      chat.id === chatId 
-        ? { ...chat, title: firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : '') }
-        : chat
-    ));
   };
 
   const simulateAIResponse = async (userMessage: string, chatId: string) => {
@@ -203,41 +194,38 @@ export default function Home() {
 
         {/* Chat History */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2">
+          <div className="p-2 space-y-1">
             {filteredChats.length === 0 ? (
-              <div className="text-center text-gray-500 py-8 text-sm">
-                No chats found
+              <div className="text-center py-8 text-gray-500 text-sm">
+                {searchQuery ? 'No chats found' : 'No chats yet'}
               </div>
             ) : (
               filteredChats.map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors duration-200 mb-1 ${
+                <div 
+                  key={chat.id} 
+                  className={`group relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                     currentChatId === chat.id 
-                      ? 'bg-pink-400/60' 
-                      : 'hover:bg-pink-300/60'
+                      ? 'bg-pink-400/80 text-gray-800' 
+                      : 'hover:bg-pink-300/60 text-gray-700'
                   }`}
                   onClick={() => setCurrentChatId(chat.id)}
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <svg className="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.418 8-9 8a9.013 9.013 0 01-5.314-1.706L3 20l1.706-3.686A8.963 8.963 0 013 12c0-4.418 4.418-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-gray-800 truncate">{chat.title}</p>
-                      <p className="text-xs text-gray-600">
-                        {chat.updatedAt.toLocaleDateString()}
-                      </p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {chat.title}
+                    </p>
+                    <p className="text-xs text-gray-600 truncate">
+                      {formatTime(chat.updatedAt)}
+                    </p>
                   </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteChat(chat.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-pink-500/40 transition-all duration-200"
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-pink-500/20 rounded transition-all duration-200"
                   >
-                    <svg className="w-4 h-4 text-gray-600 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
@@ -303,32 +291,32 @@ export default function Home() {
                           <ReactMarkdown
                             components={{
                               // Paragraphs
-                              p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                              p: (props) => <p className="mb-2 last:mb-0" {...props} />,
                               
                               // Bold text
-                              strong: ({node, ...props}) => <strong className="font-semibold text-gray-900" {...props} />,
+                              strong: (props) => <strong className="font-semibold text-gray-900" {...props} />,
                               
                               // Italic text  
-                              em: ({node, ...props}) => <em className="italic" {...props} />,
+                              em: (props) => <em className="italic" {...props} />,
                               
                               // Lists
-                              ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
-                              li: ({node, ...props}) => <li className="ml-2" {...props} />,
+                              ul: (props) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
+                              ol: (props) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
+                              li: (props) => <li className="ml-2" {...props} />,
                               
                               // Headers
-                              h1: ({node, ...props}) => <h1 className="text-lg font-semibold mb-2" {...props} />,
-                              h2: ({node, ...props}) => <h2 className="text-base font-semibold mb-2" {...props} />,
-                              h3: ({node, ...props}) => <h3 className="text-base font-medium mb-2" {...props} />,
+                              h1: (props) => <h1 className="text-lg font-semibold mb-2" {...props} />,
+                              h2: (props) => <h2 className="text-base font-semibold mb-2" {...props} />,
+                              h3: (props) => <h3 className="text-base font-medium mb-2" {...props} />,
                               
                               // Code
-                              code: ({node, ...props}: any) => 
+                              code: (props: React.ComponentProps<'code'> & { inline?: boolean }) => 
                                 props.inline 
                                   ? <code className="bg-pink-100 text-pink-800 px-1 py-0.5 rounded text-sm font-mono" {...props} />
                                   : <code className="block bg-pink-100 text-pink-800 p-2 rounded text-sm font-mono mb-2" {...props} />,
                               
                               // Blockquotes
-                              blockquote: ({node, ...props}) => (
+                              blockquote: (props) => (
                                 <blockquote className="border-l-4 border-pink-300 pl-4 italic mb-2" {...props} />
                               ),
                             }}
