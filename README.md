@@ -49,7 +49,7 @@ NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
 
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 3. Database Setup
@@ -145,7 +145,7 @@ src/
 ```bash
 NEXT_PUBLIC_OPENAI_API_KEY=your_production_openai_key
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### Supabase Configuration
