@@ -1,61 +1,205 @@
 # MommyGPT 💕
 
-Your caring AI assistant with a motherly touch.
+A caring AI assistant with a motherly touch, featuring user authentication and persistent chat history. Built with Next.js 15, Supabase, and OpenAI.
 
-## Getting Started
+![MommyGPT Interface](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js) ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-green?style=for-the-badge&logo=supabase) ![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue?style=for-the-badge&logo=typescript)
 
-First, run the development server:
+## ✨ Features
 
+### 🎯 Core Functionality
+- **Smart AI Assistant**: Warm, caring, and understanding virtual companion
+- **User Authentication**: Secure sign-up/sign-in with Supabase Auth
+- **Persistent Chat History**: All conversations saved and synced across devices
+- **Multi-Chat Management**: Create, search, and organize multiple conversations
+- **Real-time Updates**: Instant message delivery and status updates
+
+### 🎨 User Experience
+- **ChatGPT-style Interface**: Familiar and intuitive chat design
+- **Responsive Design**: Perfect experience on desktop, tablet, and mobile
+- **Beautiful UI**: Modern glass-morphism effects with pink theme
+- **Fast Performance**: Optimized with Next.js 15 and React 18
+- **Touch-Friendly**: Designed for mobile-first interaction
+
+### 🔐 Security & Privacy
+- **Row-Level Security**: Users can only access their own data
+- **Secure Authentication**: Powered by Supabase Auth
+- **Data Isolation**: Complete separation between user accounts
+- **Type Safety**: Full TypeScript implementation
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and Yarn
+- OpenAI API key
+- Supabase account (free tier works great!)
+
+### 1. Clone and Install
+```bash
+git clone https://github.com/yourusername/mommygpt.git
+cd mommygpt/MommyGPT
+yarn install
+```
+
+### 2. Environment Setup
+Create a `.env` file in the MommyGPT directory:
+
+```bash
+# OpenAI API
+NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 3. Database Setup
+1. Create a new Supabase project
+2. Run the SQL script from `supabase-setup.sql` in your Supabase SQL editor
+3. Disable email confirmation in Supabase Auth settings (optional, for easier testing)
+
+### 4. Run Development Server
 ```bash
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see MommyGPT in action!
 
-## Setting up OpenAI API
+## 📖 Detailed Setup
 
-To enable AI responses, you need to add your OpenAI API key:
+For comprehensive setup instructions, see our documentation:
+- **[SETUP.md](SETUP.md)** - Complete setup guide
+- **[QUICK-START.md](QUICK-START.md)** - 5-minute setup checklist
+- **[DATABASE-FLOW.md](DATABASE-FLOW.md)** - Database architecture explanation
 
-1. Get your API key from [OpenAI Platform](https://platform.openai.com/account/api-keys)
-2. Create a `.env.local` file in the root directory
-3. Add your API key:
+## 🏗️ Architecture
 
-```bash
-NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
+### Technology Stack
+- **Frontend**: Next.js 15, React 18, TypeScript
+- **Styling**: Tailwind CSS with custom design system
+- **Authentication**: Supabase Auth
+- **Database**: Supabase (PostgreSQL)
+- **AI**: OpenAI GPT-4o-mini
+- **State Management**: React Context + Custom Hooks
+- **Type Safety**: Full TypeScript coverage
+
+### Database Schema
+```
+auth.users (Supabase managed)
+└── public.users (user profiles)
+    └── public.chats
+        └── public.messages
 ```
 
-### Demo Mode
+### Key Features
+- **Automatic Profile Creation**: Database triggers handle user profile setup
+- **Row-Level Security**: Postgres RLS policies ensure data privacy
+- **Real-time Updates**: Optimistic UI updates with database sync
+- **Error Handling**: Comprehensive error boundaries and fallbacks
 
-Without an API key, MommyGPT will run in demo mode with pre-written motherly responses that are still warm and supportive!
+## 🎛️ Configuration
 
-## Features
+### OpenAI Settings
+- **Model**: GPT-4o-mini (cost-optimized)
+- **Personality**: Comfort-focused with advice when requested
+- **Context**: Maintains conversation history for better responses
 
-- 💬 **Chat Interface**: Beautiful ChatGPT-style interface with pink theme
-- 🗂️ **Chat History**: Save and manage multiple conversations
-- 🔍 **Search**: Find past conversations easily
-- 🎨 **Responsive Design**: Works perfectly on all devices
-- 💝 **Motherly AI**: Warm, caring, and wise responses from MommyGPT
-- ✨ **Modern UI**: Glass-morphism effects and smooth animations
+### Supabase Features Used
+- **Authentication**: Email/password with optional email verification
+- **Database**: PostgreSQL with RLS
+- **Real-time**: Automatic UI updates (can be enabled)
+- **Storage**: Ready for file uploads (future enhancement)
 
-## Technologies Used
+## 🔧 Development
 
-- **Next.js 15** with App Router
-- **TypeScript** for type safety
-- **Tailwind CSS** for styling
-- **OpenAI API** for AI responses
-- **React Hooks** for state management
+### Available Scripts
+```bash
+yarn dev          # Start development server
+yarn build        # Build for production
+yarn start        # Start production server
+yarn lint         # Run ESLint
+yarn type-check   # Run TypeScript check
+```
 
-## Learn More
+### Code Structure
+```
+src/
+├── app/                 # Next.js app router
+├── components/          # React components
+│   └── auth/           # Authentication components
+├── lib/                # Core utilities
+│   ├── auth/           # Auth context and providers
+│   ├── supabase/       # Database clients
+│   ├── hooks/          # Custom React hooks
+│   └── types/          # TypeScript definitions
+└── styles/             # Global styles
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Vercel (Recommended)
+1. Connect your GitHub repo to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on each push
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Environment Variables for Production
+```bash
+NEXT_PUBLIC_OPENAI_API_KEY=your_production_openai_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## Deploy on Vercel
+### Supabase Configuration
+- Set up custom domain (optional)
+- Configure email templates
+- Set up proper CORS settings
+- Enable row-level security policies
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Troubleshooting
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Common Issues
+1. **Build Errors**: Run `yarn build` to check for TypeScript issues
+2. **Auth Problems**: Verify Supabase keys and URL
+3. **Database Issues**: Check RLS policies and user permissions
+4. **API Errors**: Confirm OpenAI API key and quota
+
+### Debug Tools
+- Use `check-database.js` script to test database connection
+- Enable Supabase debug mode in development
+- Check browser console for detailed error messages
+
+## 🤝 Contributing
+
+We welcome contributions! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with proper TypeScript types
+4. Test thoroughly
+5. Submit a pull request
+
+### Development Guidelines
+- Use TypeScript for all new code
+- Follow the existing code style
+- Add proper error handling
+- Update documentation as needed
+- Test on multiple devices
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **OpenAI** for the powerful GPT models
+- **Supabase** for the amazing backend-as-a-service
+- **Vercel** for the excellent deployment platform
+- **Next.js team** for the fantastic React framework
+
+## 📞 Support
+
+- Create an issue for bug reports
+- Join discussions for feature requests
+- Check existing issues before creating new ones
+
+---
+
+Built with 💕 by developers who believe technology should be caring and human-centered.
