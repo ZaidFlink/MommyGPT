@@ -41,7 +41,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
           onClose();
         }
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

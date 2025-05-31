@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -44,24 +44,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase.auth]);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName || null,
-        },
-      },
-    });
-
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: fullName ? {
+          data: {
+            full_name: fullName
+          }
+        } : undefined
+      });
+      
       return { error };
+    } catch (error) {
+      return { error: error as Error };
     }
-
-    // Note: User profile is automatically created by database trigger
-    // No need to manually insert into users table
-
-    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {

@@ -6,7 +6,6 @@ import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@/lib/auth/AuthProvider';
 import { useChats } from '@/lib/hooks/useChats';
 import AuthModal from '@/components/auth/AuthModal';
-import { Chat, Message } from '@/lib/types/database';
 
 export default function Home() {
   const [message, setMessage] = useState('');
@@ -80,15 +79,15 @@ export default function Home() {
   }, [authLoading, user, mounted]);
 
   // Create a new chat
-  const createNewChat = async () => {
-    if (!user) return;
-    
-    const newChat = await createChat('New Chat');
-    if (newChat) {
-      setCurrentChatId(newChat.id);
+  const handleNewChat = async () => {
+    const result = await createChat('New Chat');
+    if (result.chat) {
+      setCurrentChatId(result.chat.id);
       if (mounted && window.innerWidth < 768) {
         setSidebarOpen(false);
       }
+    } else if (result.error) {
+      console.error('Failed to create chat:', result.error);
     }
   };
 
@@ -125,26 +124,26 @@ export default function Home() {
     e.preventDefault();
     if (!message.trim() || !user) return;
 
-    let chatId = currentChatId;
+    let activeChatId = currentChatId;
     
     // Create new chat if none exists
-    if (!chatId) {
-      const newChat = await createChat(message.slice(0, 30) + (message.length > 30 ? '...' : ''));
-      if (!newChat) return;
-      chatId = newChat.id;
-      setCurrentChatId(chatId);
+    if (!activeChatId) {
+      const result = await createChat(message.slice(0, 30) + (message.length > 30 ? '...' : ''));
+      if (!result.chat) return;
+      activeChatId = result.chat.id;
+      setCurrentChatId(activeChatId);
     }
 
     // Add user message to database
-    await addMessage(chatId, message, true);
+    await addMessage(activeChatId, message, true);
 
     // Update chat title if it's the first message
     if (currentChat?.messages?.length === 0) {
-      await updateChatTitle(chatId, message.slice(0, 30) + (message.length > 30 ? '...' : ''));
+      await updateChatTitle(activeChatId, message.slice(0, 30) + (message.length > 30 ? '...' : ''));
     }
     
     // Generate AI response
-    simulateAIResponse(message, chatId);
+    simulateAIResponse(message, activeChatId);
     setMessage('');
   };
 
@@ -252,7 +251,7 @@ export default function Home() {
           {/* Sidebar Header */}
           <div className="p-4 border-b border-pink-300">
             <button
-              onClick={createNewChat}
+              onClick={handleNewChat}
               className="w-full flex items-center gap-3 px-3 py-3 bg-pink-300/80 hover:bg-pink-400/80 rounded-lg transition-colors duration-200 text-gray-700 touch-manipulation"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -6,7 +6,12 @@ import { useAuth } from '@/lib/auth/AuthProvider';
 import { Chat, Message } from '@/lib/types/database';
 
 // Convert database message to app message format
-const convertMessage = (dbMessage: any): Message => ({
+const convertMessage = (dbMessage: {
+  id: string;
+  content: string;
+  is_user: boolean;
+  created_at: string;
+}): Message => ({
   id: dbMessage.id,
   content: dbMessage.content,
   is_user: dbMessage.is_user,
@@ -14,7 +19,19 @@ const convertMessage = (dbMessage: any): Message => ({
 });
 
 // Convert database chat to app chat format
-const convertChat = (dbChat: any): Chat => ({
+const convertChat = (dbChat: {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages?: Array<{
+    id: string;
+    content: string;
+    is_user: boolean;
+    created_at: string;
+  }>;
+}): Chat => ({
   id: dbChat.id,
   user_id: dbChat.user_id,
   title: dbChat.title,
@@ -62,29 +79,25 @@ export function useChats() {
   }, [user, supabase]);
 
   // Create a new chat
-  const createChat = useCallback(async (title: string): Promise<Chat | null> => {
-    if (!user) return null;
+  const createChat = useCallback(async (title: string): Promise<{ chat?: Chat; error?: Error }> => {
+    if (!user) return { error: new Error('User not authenticated') };
 
-    try {
-      const { data, error } = await supabase
-        .from('chats')
-        .insert({
-          user_id: user.id,
-          title: title.slice(0, 100), // Limit title length
-        })
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('chats')
+      .insert([{ 
+        user_id: user.id, 
+        title,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
 
-      if (error) throw error;
+    if (error) return { error: error as Error };
 
-      const newChat = convertChat({ ...data, messages: [] });
-      setChats(prev => [newChat, ...prev]);
-      return newChat;
-    } catch (err) {
-      console.error('Error creating chat:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create chat');
-      return null;
-    }
+    const newChat = convertChat({ ...data, messages: [] });
+    setChats(prev => [newChat, ...prev]);
+    return { chat: newChat };
   }, [user, supabase]);
 
   // Add a message to a chat
@@ -162,32 +175,19 @@ export function useChats() {
   }, [user, supabase]);
 
   // Delete a chat
-  const deleteChat = useCallback(async (chatId: string): Promise<boolean> => {
-    if (!user) return false;
+  const deleteChat = useCallback(async (chatId: string): Promise<{ error?: Error }> => {
+    if (!user) return { error: new Error('User not authenticated') };
 
-    try {
-      // Delete messages first (if not cascaded)
-      await supabase
-        .from('messages')
-        .delete()
-        .eq('chat_id', chatId);
+    const { error } = await supabase
+      .from('chats')
+      .delete()
+      .eq('id', chatId)
+      .eq('user_id', user.id);
 
-      // Delete chat
-      const { error } = await supabase
-        .from('chats')
-        .delete()
-        .eq('id', chatId)
-        .eq('user_id', user.id);
+    if (error) return { error: error as Error };
 
-      if (error) throw error;
-
-      setChats(prev => prev.filter(chat => chat.id !== chatId));
-      return true;
-    } catch (err) {
-      console.error('Error deleting chat:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete chat');
-      return false;
-    }
+    setChats(prev => prev.filter(chat => chat.id !== chatId));
+    return {};
   }, [user, supabase]);
 
   // Load chats when user changes
